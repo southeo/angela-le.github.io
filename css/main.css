@@ -1792,7 +1792,15 @@ header .logo a {
 	background: #FFFFFF;
 	padding-top: 12rem;
 	padding-bottom: 12rem;
+	margin:auto;
 }
+
+iframe {
+	overflow:hidden;
+	margin:auto;
+	width:50%;
+}
+
 #portfolio .folio-item {
 	padding: 0;
 	position: relative;
@@ -1864,12 +1872,6 @@ header .logo a {
 	-webkit-transform: scale(1.05);
 	-ms-transform: scale(1.05);
 	transform: scale(1.05);
-}
-
-iframe {
-	overflow:hidden;
-	margin:auto;
-	width:50%;
 }
 
 /**
