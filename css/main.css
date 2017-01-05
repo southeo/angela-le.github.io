@@ -1808,7 +1808,7 @@ header .logo a {
 }
 
 #portfolio .overlay {
-	position: absolute;
+	position: auto;
 	top: 0;
 	left: 0;
 	width: 100%;
@@ -1864,6 +1864,12 @@ header .logo a {
 	-webkit-transform: scale(1.05);
 	-ms-transform: scale(1.05);
 	transform: scale(1.05);
+}
+
+iframe {
+	overflow:hidden;
+	margin:auto;
+	width:50%;
 }
 
 /**
