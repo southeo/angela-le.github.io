@@ -71,10 +71,10 @@ html, body {
 }
 body {
 	background: #151515;
-	font-family: "lora-regular", serif;
+	font-family: "poppins-regular", sans-serif;
 	font-size: 1.7rem;
 	line-height: 3rem;
-	color: #FFFFFF;
+	color: #000000;
 }
 
 /**
@@ -1684,7 +1684,7 @@ header .logo a {
 #resume .timeline-header p {
 	font-family: "poppins-regular", sans-serif;
 	font-size: 1.6rem;
-	color: #888888;
+	color: #000000;
 }
 #resume .timeline-content {
 	margin-left: 35%;
@@ -2420,6 +2420,7 @@ iframe {
 	font-family: "poppins-regular", sans-serif;
 	font-size: 1.5rem;
 	text-align: center;
+	color: white;
 }
 .contact-info .collapse {
 	padding: 0;
