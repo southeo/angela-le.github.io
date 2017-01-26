@@ -488,7 +488,7 @@ textarea {
 	width: 200px;
 	border-radius: 50%;
 	margin: .9rem 0 0 0;
-	float: left;
+	float: initial;
 
 /**
  * small screens - (_grid.scss)
