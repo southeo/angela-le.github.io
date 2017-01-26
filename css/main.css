@@ -153,6 +153,7 @@ p img {
 	margin: 0;
 }
 p.lead {
+	text-align: center;
 	font-family: "lora-regular", serif;
 	font-size: 2rem;
 	line-height: 1.8;
