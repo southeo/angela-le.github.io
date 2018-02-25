@@ -1,0 +1,183 @@
+using System;
+using System.IO;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using System.Web;
+
+
+namespace CSHttpClientSample
+{
+    static class Program
+    {   // Replace the subscriptionKey string value with your valid subscription key.
+        const string subscriptionKey = "2be073433829444fafec5fa7f5801eec";
+
+        // Replace or verify the region.
+        const string uriBase = "https://eastus.api.cognitive.microsoft.com/face/v1.0/detect";
+
+        static void Main()
+        {
+            while (true)
+            {
+                Console.WriteLine("Hospital Search!");
+                Console.Write("Enter the patient you are looking for");
+                string imageFilePath = Console.ReadLine();//Should be PrimeFace
+
+                // Execute the REST API call.
+                Task<string> content = MakeAnalysisRequest(imageFilePath); //returns faceID of the thing
+                string c = content.Result;
+                string[] faceID = new string[(c.Length + 1) / 114]; //FaceID = id of searched face, should contain single element
+                strPar(c, ref faceID);
+                //Console.WriteLine(c);
+                //Console.WriteLine(faceID[0]);
+
+                Console.WriteLine("Check Environment");
+                string imageFilePath2 = Console.ReadLine();//Contains multiple faces
+
+                Task<string> environment = MakeAnalysisRequest(imageFilePath2); //returns faceID of the thing
+                string e = environment.Result;
+                string[] idString = new string[(e.Length + 1) / 114];
+                strPar(e, ref idString);
+                //            Console.WriteLine(e);
+                //           Console.WriteLine(idString[0]);
+                //           Console.WriteLine(idString[1]);
+                //          Console.WriteLine(e);
+                MakeRequest(idString, faceID[0]);
+                Console.ReadLine(); //End Program
+            }
+        }
+
+        public static async Task<string> MakeAnalysisRequest(string imageFilePath)
+        {
+            HttpClient client = new HttpClient();
+            // Request headers.
+            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "2be073433829444fafec5fa7f5801eec");
+            // Request parameters. A third optional parameter is "details".
+            string requestParameters = "returnFaceId=true&returnFaceLandmarks=false";
+
+            // Assemble the URI for the REST API Call.
+            string uri = uriBase + "?" + requestParameters;
+
+            HttpResponseMessage response;
+
+            // Request body. Posts a locally stored JPEG image.
+            byte[] byteData = GetImageAsByteArray(imageFilePath);
+
+            using (ByteArrayContent content = new ByteArrayContent(byteData))
+            {
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+                // Execute the REST API call.
+                response = await client.PostAsync(uri, content);
+                // Get the JSON response.
+                string contentString = await response.Content.ReadAsStringAsync();
+                await Task.Delay(100);
+                return contentString;
+
+                /*Display the JSON response.
+                Console.WriteLine("\nResponse:\n");
+                string[] faceID = new string[(contentString.Length+1)/114];
+                
+                Console.WriteLine(contentString);*/
+            }
+        }
+        //        C:\Users\Soulaine\Pictures\Print\pic.jpg
+        static void strPar(string s, ref string[] a)
+        {
+            int i = 0;
+            while (i < a.Length)
+            {
+                a[i] = s.Substring(12, 36);
+                if (i + 1 == a.Length) s = s.Substring(113);
+                else s = s.Substring(114);
+                i++;
+            }
+        }
+
+        static async void MakeRequest(string[] idString, string faceID )
+        {
+            Product product = new Product(idString.Length);
+            product.setFaceId(faceID);
+            product.setFaceIds(idString);
+
+            string json = JsonConvert.SerializeObject(product);
+           
+            var client = new HttpClient();
+            var queryString = HttpUtility.ParseQueryString(string.Empty);
+
+            // Request headers
+            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "2be073433829444fafec5fa7f5801eec");
+
+            var uri = "https://eastus.api.cognitive.microsoft.com/face/v1.0/findsimilars?" + queryString;
+            HttpResponseMessage response;
+
+            // Request body
+            byte[] byteData = Encoding.UTF8.GetBytes(json);
+            
+            using (var content = new ByteArrayContent(byteData))
+            {
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                response = await client.PostAsync(uri, content);
+    
+                string contentString = await response.Content.ReadAsStringAsync();
+                string cString;
+                cString = contentString.Substring(63, 5);
+                float confidence = float.Parse(cString);
+                if(confidence > 0.6) Console.WriteLine("The patient is in this room!");
+                else Console.WriteLine("The patient is not in this room. Try somewhere else!");
+
+            }
+        }
+
+        static byte[] GetImageAsByteArray(string imageFilePath)
+        {
+            FileStream fileStream = new FileStream(imageFilePath, FileMode.Open, FileAccess.Read);
+            BinaryReader binaryReader = new BinaryReader(fileStream);
+            return binaryReader.ReadBytes((int)fileStream.Length);
+        }
+
+    }
+}
+
+public class Product
+{
+    public string faceId;
+    public string[] faceIds;
+    public int maxNumOfCandidatesReturned;
+    public string mode;
+
+    public Product(int k)
+    {
+        faceId = " ";
+        faceIds = new string[k];
+
+        for (int i = 0; i < k; i++)
+        {
+            faceIds[i] = " ";
+        }
+        maxNumOfCandidatesReturned = 1;
+        mode = "matchFace";
+    }
+
+    public void setFaceId(string s)
+    {
+        this.faceId = s;
+    }
+
+    public void setFaceIds(string[] s)
+    {
+        for (int i = 0; i < s.Length; i++)
+        {
+            this.faceIds[i] = s[i];
+        }
+    }
+
+    public string toString()
+    {
+        return "faceID: " + this.faceId + ", faceStrings:" + faceIds[0] + " " + faceIds[1] + " " + faceIds[2] + mode;
+    }
+
+
+}
